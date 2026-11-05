@@ -15,7 +15,7 @@
 | 0 | PRD 작성 | product-manager | 완료 (2026-11-05 승인) |
 | 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 완료 (2026-11-05) |
 | 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 완료 (2026-11-05) |
-| 3 | 통합 | backend-developer → frontend-developer | 대기 |
+| 3 | 통합 | backend-developer → frontend-developer | 완료 (2026-11-05) |
 | 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 대기 |
 | 5 | 배포 | backend-developer, qa-engineer (+ 사용자 직접 작업) | 대기 |
 
@@ -239,12 +239,28 @@
 
 **완료 확인**
 
-- [ ] 로컬에서 구글 로그인 → 한 줄 일기 저장 → 감정과 공감 메시지 표시 → 지난 기록에 나타남 → 로그아웃까지 동작한다.
-- [ ] 위기 표현이 들어간 시험 문장을 쓰면 공감 메시지와 상담 연락처가 함께 나온다.
-- [ ] `OPENROUTER_API_KEY`를 일부러 틀린 값으로 바꾼 상태(셸에서만 임시로)에서도 일기는 저장되고, 화면에 기본 위로 문구와 (위기일 때) 상담 연락처가 나온다.
-- [ ] DB의 `diary.entries`에 행이 쌓이고, `user_id`가 로그인한 계정의 ID와 같다.
-- [ ] 브라우저 개발자 도구의 네트워크 응답과 화면 코드(번들)에 `OPENROUTER_API_KEY`·`DATABASE_URL` 값이 없다.
-- [ ] `npm run build`, `lint`, `test`가 모두 통과한다.
+- [x] 로컬에서 구글 로그인 → 한 줄 일기 저장 → 감정과 공감 메시지 표시 → 지난 기록에 나타남 → 로그아웃까지 동작한다. (삭제도 확인)
+- [x] 위기 표현이 들어간 시험 문장을 쓰면 공감 메시지와 상담 연락처가 함께 나온다.
+- [x] `OPENROUTER_API_KEY`를 일부러 틀린 값으로 바꾼 상태(셸에서만 임시로)에서도 일기는 저장되고, 화면에 기본 위로 문구와 (위기일 때) 상담 연락처가 나온다.
+- [x] DB의 `diary.entries`에 행이 쌓이고, `user_id`가 로그인한 계정의 ID와 같다.
+- [x] 브라우저 개발자 도구의 네트워크 응답과 화면 코드(번들)에 `OPENROUTER_API_KEY`·`DATABASE_URL` 값이 없다. (번들 332개 파일과 로그인 전 서버 응답을 값 대조로 검사)
+- [x] `npm run build`, `lint`, `test`가 모두 통과한다. (테스트 337개 통과, 실제 AI·DB를 부르는 9개는 기본 실행에서 건너뜀)
+  - 개발 서버와 빌드를 함께 돌리던 중에는 화면 테스트 6개가 실패했다. 따로 다시 돌리면 모두 통과해서, 컴퓨터가 바빠 생긴 시간 초과로 보았다. 4단계에서 다시 보이면 원인을 따로 살핀다.
+
+**3단계 시험에서 찾아 고친 것 (2026-11-05)**
+
+- **user_id가 로그인마다 바뀜**: DB 어댑터가 없으면 Auth.js는 로그인할 때마다 `user.id`를 임의 UUID로 새로 만들고, 그 값이 `token.sub`가 된다. 다시 로그인하면 지난 일기가 보이지 않았다.
+  - `src/auth-callbacks.ts`의 `jwt` 콜백이 로그인 순간 구글 계정 ID(`account.providerAccountId`)를 `sub`에 넣게 고쳤다.
+  - 고치기 전에 저장된 시험 행 2개는 새 구글 계정 ID로 옮겼다.
+- **로그인 오류 화면**: 로그인 시작 순간 서버에서 구글 설정 주소 연결이 잠깐 실패(`fetch failed`)하자, Auth.js 기본 오류 화면 "Server error"가 떴다.
+  - 코드·설정 문제는 아니었고, 다시 시도하면 정상이었다.
+  - `pages.error`를 `/login`으로 바꾸고, 로그인 화면에 "잠시 후 다시 시도해 주세요" 안내를 띄우게 했다. (`src/app/login/LoginError.tsx`)
+
+**4·5단계로 넘기는 것**
+
+- 4단계: 다른 구글 계정으로 로그인해 서로의 일기가 보이지 않는지 실제로 확인한다. (지금까지는 자동 테스트로만 확인)
+- 5단계: 구글 OAuth 클라이언트에 배포 주소의 승인된 출처와 리디렉션 URI(`https://<배포 주소>/api/auth/callback/google`)를 추가한다.
+- 틀린 키 시험은 `.env`를 건드리지 않고 셸에서만 키를 바꿔 서버를 띄운다. (Windows cmd 예: `set OPENROUTER_API_KEY=invalid-key-for-test&& npm run dev`)
 
 ---
 
