@@ -1,4 +1,6 @@
 import type { EntryRecord, NewEntry } from "@/lib/db";
+// crisis.ts는 server-only가 아니고 다른 모듈을 불러오지 않는 순수 함수라 route에서 바로 불러도 된다.
+import { detectCrisis } from "@/lib/ai/crisis";
 import { EMOTIONS, EMOTION_SCORES } from "@/lib/ai/types";
 import type { AnalysisResult, Emotion, EmotionScore } from "@/lib/ai/types";
 
@@ -44,16 +46,30 @@ export function toEntry(row: EntryRecord): Entry {
 }
 
 /**
+ * 키워드 검사만으로 위기 여부를 정한다. (analyzeDiary를 믿을 수 없을 때의 대체 검사)
+ * 검사 함수가 예외를 내면 안전한 쪽(위기 true)으로 본다. 놓치는 것보다 잘못 띄우는 쪽이 낫다.
+ * 일기 원문은 기록하지 않는다.
+ */
+export function fallbackCrisisCheck(content: string): boolean {
+  try {
+    return detectCrisis(content).isCrisis;
+  } catch {
+    return true;
+  }
+}
+
+/**
  * analyzeDiary 결과를 저장할 값으로 바꾼다.
- * - 실패(status "failed")면 네 열을 모두 null로 두고, is_crisis는 결과의 isCrisis를 쓴다.
- * - 성공이라도 값이 약속과 다르면(모르는 감정 이름, 범위 밖 강도, 빈 메시지 등) 분석 실패로 낮춰 저장한다.
- *   DB CHECK 제약 위반으로 일기 저장 자체가 막히는 일을 피하기 위해서다. isCrisis는 그대로 살린다.
+ * - 성공이고 값이 모두 약속대로면 그대로 저장한다. isCrisis는 analyzeDiary가 정한 최종값(키워드 OR AI)이다.
+ * - 그 밖의 모든 경우(analyzeDiary 예외로 result가 없음, status "failed", 성공이지만 값이 약속과 다름)는
+ *   네 열을 모두 null로 둔 분석 실패로 저장한다. (DB CHECK 제약 위반으로 일기 저장이 막히는 일을 피한다.)
+ *   이때 is_crisis는 "결과가 알려 준 isCrisis OR 키워드 대체 검사"로 정한다.
+ *   결과가 위기라고 했다면 그 값을 낮추지 않는다. 결과가 없거나 isCrisis가 불리언이 아니어도 위기 안내는 지킨다.
  */
 export function toNewEntry(content: string, result: AnalysisResult | null | undefined): NewEntry {
-  const isCrisis = result?.isCrisis === true;
-
   if (
     result?.status === "success" &&
+    typeof result.isCrisis === "boolean" &&
     EMOTIONS.some((e) => e === result.emotion) &&
     EMOTION_SCORES.some((s) => s === result.emotionScore) &&
     typeof result.empathyMessage === "string" &&
@@ -66,10 +82,12 @@ export function toNewEntry(content: string, result: AnalysisResult | null | unde
       emotion: result.emotion,
       emotionScore: result.emotionScore,
       empathyMessage: result.empathyMessage,
-      isCrisis,
+      isCrisis: result.isCrisis,
       modelUsed: result.modelUsed,
     };
   }
 
+  // 분석 실패 경로. 위기 여부는 절대 낮추지 않는다.
+  const isCrisis = result?.isCrisis === true || fallbackCrisisCheck(content);
   return { content, emotion: null, emotionScore: null, empathyMessage: null, isCrisis, modelUsed: null };
 }

@@ -38,6 +38,7 @@ export async function POST(request: Request): Promise<Response> {
 
     // analyzeDiary는 예외를 던지지 않는 약속이지만, 던져도 일기 저장이 막히지 않게 분석 실패로 다룬다.
     // 오류 내용은 일기 원문이 들어갈 수 있어 이름만 기록한다.
+    // 예외(analysis가 null)이거나 결과가 약속과 다르면 toNewEntry가 키워드 검사로 위기 여부를 다시 정한다.
     let analysis: AnalysisResult | null = null;
     try {
       analysis = await analyzeDiary(content);

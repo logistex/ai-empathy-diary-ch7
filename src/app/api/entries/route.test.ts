@@ -262,6 +262,33 @@ describe("POST /api/entries — 저장", () => {
     expect(JSON.stringify(errorSpy.mock.calls)).not.toContain("비밀 일기 내용");
   });
 
+  it("analyzeDiary가 예외를 던져도 위기 문장이면 키워드 검사로 isCrisis true를 저장하고 응답한다", async () => {
+    mockAnalyze.mockRejectedValue(new Error("분석 오류"));
+    const { response, json } = await post({ content: "요즘 정말 죽고 싶어요" });
+
+    expect(response.status).toBe(201);
+    expect(json.entry.analysisStatus).toBe("failed");
+    expect(json.entry.isCrisis).toBe(true);
+    expect(fakeDb.rows[0].is_crisis).toBe(true);
+  });
+
+  it("analyzeDiary가 예외를 던져도 평범한 문장이면 isCrisis는 false다", async () => {
+    mockAnalyze.mockRejectedValue(new Error("분석 오류"));
+    const { json } = await post({ content: "점심이 맛있었다" });
+    expect(json.entry.isCrisis).toBe(false);
+  });
+
+  it("성공 결과가 약속과 달라 실패로 낮출 때도 위기 문장이면 isCrisis true다", async () => {
+    mockAnalyze.mockResolvedValue({
+      ...SUCCESS,
+      emotionScore: 9,
+      isCrisis: false,
+    } as unknown as AnalysisResult);
+    const { json } = await post({ content: "스스로 목숨을 끊고 싶다" });
+    expect(json.entry.analysisStatus).toBe("failed");
+    expect(json.entry.isCrisis).toBe(true);
+  });
+
   it("analyzeDiary가 약속과 다른 값을 돌려줘도(모르는 감정 이름 등) 분석 실패로 저장한다", async () => {
     mockAnalyze.mockResolvedValue({
       ...SUCCESS,
