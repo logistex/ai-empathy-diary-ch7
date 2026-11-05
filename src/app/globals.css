@@ -42,6 +42,21 @@
   --color-crisis-text: #1c3a41; /* crisis-bg 위 10.33 */
   --color-crisis-action: #215b66; /* 전화 걸기 버튼 바탕. 흰 글자 7.63 / crisis-bg 위 6.50 */
 
+  /* ---------- 색: 감정 표시 (글자와 함께 쓰는 보조 색. 색만으로 구분하지 않는다) ----------
+     짝: 바탕 / 글자. 글자 대비 — 기쁨 7.91, 슬픔 8.67, 분노 6.95, 불안 8.62, 평온 7.98, 분석 안 됨 5.82 */
+  --emotion-joy-bg: #fbecc2;
+  --emotion-joy-text: #5c4308;
+  --emotion-sad-bg: #dde8f3;
+  --emotion-sad-text: #1f3f63;
+  --emotion-anger-bg: #f8dccf;
+  --emotion-anger-text: #7a3320;
+  --emotion-anxious-bg: #e9e0f2;
+  --emotion-anxious-text: #47306b;
+  --emotion-calm-bg: #dcebdd;
+  --emotion-calm-text: #274b2b;
+  --emotion-none-bg: #f3e9d6; /* 분석 안 됨 = surface-sunken */
+  --emotion-none-text: #675646; /* = text-muted */
+
   /* ---------- 색: 포커스 ---------- */
   --color-focus: #1d4f91; /* bg 7.50 / surface 8.01 / accent-soft 6.53 (UI 3:1 기준 충족) */
 

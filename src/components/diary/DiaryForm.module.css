@@ -1,0 +1,127 @@
+.wrapper {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.label {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+}
+
+/* 입력 상자: 테두리 안에 입력창과 글자 수 줄이 함께 있다. (글자 수가 글을 가리지 않는다)
+   무료 모델 안내는 이 상자 바로 아래에 온다. */
+.field {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.field:focus-within {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.fieldInvalid {
+  border-color: var(--color-error-text);
+}
+
+.fieldBusy {
+  background-color: var(--color-surface-sunken);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  min-height: 8.5rem;
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background-color: transparent;
+  color: var(--color-text);
+  line-height: var(--leading-body);
+  resize: vertical;
+}
+
+/* 테두리 상자(.field)가 포커스 표시를 대신한다 */
+.textarea:focus-visible {
+  outline: none;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.counter {
+  align-self: flex-end;
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterOver {
+  color: var(--color-error-text);
+  font-weight: 700;
+}
+
+.fieldError {
+  color: var(--color-error-text);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+/* 무료 모델 안내 — 본문 글자 대비(12.9:1)를 지킨다. 접거나 닫을 수 없다. */
+.notice {
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 모바일에서는 저장 버튼을 가로로 가득 채워 누르기 쉽게 */
+.submit {
+  width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .submit {
+    width: auto;
+    min-width: 10rem;
+  }
+}
+
+.live {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.analyzing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}

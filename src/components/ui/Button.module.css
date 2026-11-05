@@ -37,7 +37,7 @@
   box-shadow: var(--shadow-sm);
 }
 
-.primary:hover:not(:disabled) {
+.primary:hover:not(:disabled):not([aria-disabled="true"]) {
   background-color: var(--color-accent-hover);
 }
 
@@ -47,7 +47,7 @@
   color: var(--color-text);
 }
 
-.secondary:hover:not(:disabled) {
+.secondary:hover:not(:disabled):not([aria-disabled="true"]) {
   background-color: var(--color-accent-soft);
 }
 
@@ -56,12 +56,14 @@
   color: var(--color-accent-text);
 }
 
-.quiet:hover:not(:disabled) {
+.quiet:hover:not(:disabled):not([aria-disabled="true"]) {
   background-color: var(--color-accent-soft);
 }
 
-/* 사용할 수 없는 버튼(예: 저장 중). 색만으로 구분하지 않고 커서도 바꾼다. */
-.button:disabled {
+/* 사용할 수 없는 버튼(예: 저장 중). 색만으로 구분하지 않고 커서도 바꾼다.
+   aria-disabled는 포커스를 잃지 않고 "지금은 누를 수 없음"을 알릴 때 쓴다. (저장 중, 지우는 중) */
+.button:disabled,
+.button[aria-disabled="true"] {
   opacity: 0.6;
   cursor: not-allowed;
 }

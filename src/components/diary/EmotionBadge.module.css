@@ -1,0 +1,66 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.score {
+  font-size: var(--text-xs);
+}
+
+.dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.dotOn,
+.dotOff {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentcolor;
+}
+
+.dotOff {
+  opacity: 0.25;
+}
+
+.joy {
+  background-color: var(--emotion-joy-bg);
+  color: var(--emotion-joy-text);
+}
+
+.sad {
+  background-color: var(--emotion-sad-bg);
+  color: var(--emotion-sad-text);
+}
+
+.anger {
+  background-color: var(--emotion-anger-bg);
+  color: var(--emotion-anger-text);
+}
+
+.anxious {
+  background-color: var(--emotion-anxious-bg);
+  color: var(--emotion-anxious-text);
+}
+
+.calm {
+  background-color: var(--emotion-calm-bg);
+  color: var(--emotion-calm-text);
+}
+
+.none {
+  background-color: var(--emotion-none-bg);
+  color: var(--emotion-none-text);
+  font-weight: 700;
+}

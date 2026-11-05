@@ -1,0 +1,99 @@
+/* 위기 안내 상자: 자극적인 빨강 대신 차분한 청록. 두꺼운 테두리와 큰 글씨, 큰 전화 버튼으로 눈에 띄게 한다. */
+.box {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 2px solid var(--color-crisis-border);
+  border-left-width: 8px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-crisis-bg);
+  color: var(--color-crisis-text);
+}
+
+.message {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  line-height: var(--leading-body);
+}
+
+.contacts {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 줄(li)의 너비를 기준으로 모양을 바꾼다(container query).
+   넓으면 "기관 이름 ... 번호" 한 줄, 좁으면(휴대폰) 이름 아래에 가로로 꽉 찬 번호 버튼. */
+.contact {
+  container-type: inline-size;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+}
+
+.name {
+  min-width: 0;
+  font-weight: 700;
+}
+
+/* 누르기 쉬운 전화 걸기 버튼 (최소 44px) */
+.call {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6.5rem;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-crisis-action);
+  color: var(--color-text-on-accent);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@container (max-width: 19.5rem) {
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-3);
+  }
+
+  .call {
+    width: 100%;
+  }
+}
+
+.call:hover {
+  background-color: var(--color-crisis-text);
+  color: var(--color-text-on-accent);
+}
+
+.disclaimer {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-crisis-border);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 40rem) {
+  .box {
+    padding: var(--space-6);
+  }
+
+  .contacts {
+    grid-template-columns: 1fr 1fr;
+  }
+}

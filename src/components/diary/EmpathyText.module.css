@@ -1,0 +1,5 @@
+.message {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: var(--leading-body);
+}
