@@ -13,7 +13,7 @@
 | 단계 | 내용 | 맡을 에이전트 | 상태 |
 |---|---|---|---|
 | 0 | PRD 작성 | product-manager | 완료 (2026-11-05 승인) |
-| 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 대기 |
+| 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 완료 (2026-11-05) |
 | 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 대기 |
 | 3 | 통합 | backend-developer → frontend-developer | 대기 |
 | 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 대기 |
@@ -104,7 +104,7 @@
    - 루트에 Next.js(App Router, TypeScript, ESLint) 프로젝트를 만든다. 루트에 `.claude/`, `CLAUDE.md`, `.env`가 있어 `create-next-app`이 충돌하면, 임시 폴더에 만든 뒤 파일을 옮긴다. 이때 `.env`는 건드리지 않는다.
    - 2단계에 필요한 의존성을 **이 단계에서 모두 설치**한다. (예: `next-auth@beta`, Postgres 드라이버, `zod`, 테스트 도구 `vitest`) 2단계의 동시 작업 중에 `npm install`이 겹치지 않게 하기 위해서다.
    - `.env.example`에 위 환경 변수 5개를 **이름만** 적는다.
-   - `npm run dev`, `build`, `lint`, `test` 스크립트를 준비한다.
+   - `npm run dev`, `build`, `lint`, `test`, `db:migrate`, `db:snapshot` 스크립트를 준비한다.
 2. **backend-developer — DB 구조와 연결**
    - `db/migrations/001_create_diary_schema.sql`을 만든다. 내용은 `CREATE SCHEMA IF NOT EXISTS diary`와 `diary.entries` 표다.
      - 열 예시: `id`(uuid), `user_id`(text, 구글 계정 ID), `content`(text), `emotion`(text), `emotion_score`(정수), `empathy_message`(text), `is_crisis`(boolean), `model_used`(text), `created_at`(timestamptz)
@@ -135,21 +135,21 @@
 
 | 에이전트 | 맡는 파일 |
 |---|---|
-| backend-developer | `src/app/api/**`, `src/lib/db/**`, `src/auth.ts`, `src/middleware.ts`(Next.js 16 이상은 `src/proxy.ts`), `db/**` |
+| backend-developer | `src/app/api/**`, `src/lib/db/**`, `src/auth.ts`, `src/proxy.ts`(Next.js 16.4.5라서 `middleware.ts` 대신 사용), `db/**` |
 | ai-integration-specialist | `src/lib/ai/**` |
-| frontend-developer | `src/app/**`(단, `api/` 제외), `src/components/**`, 스타일 파일 |
+| frontend-developer | `src/app/**`(단, `api/` 제외), `src/components/**`, `src/lib/client/**`, 스타일 파일 |
 
 **산출물**: Next.js 프로젝트, `.env.example`, `db/migrations/001_create_diary_schema.sql`, `docs/API.md`, `src/lib/ai/types.ts`, 빈 페이지들
 
 **완료 확인**
 
-- [ ] `npm run dev`로 로컬(`http://localhost:3000`)에서 첫 화면이 열린다.
-- [ ] `npm run build`와 `npm run lint`가 오류 없이 끝난다.
-- [ ] `npm run db:migrate` 실행 후 `diary.entries` 표가 있다. (`information_schema.tables`에서 `table_schema = 'diary'` 조회)
-- [ ] **다른 스키마 보호 점검**: 마이그레이션 전후로 `diary` 밖 스키마의 표 목록과 개수가 똑같다.
-- [ ] `.env.example`에 변수 이름 5개가 있고, 값은 비어 있다. `git status`에 `.env`가 나타나지 않는다.
-- [ ] `docs/API.md`의 응답 형식과 `src/lib/ai/types.ts`가 서로 맞는다.
-- [ ] 2단계 파일 담당 구역이 정해져 있다.
+- [x] `npm run dev`로 로컬(`http://localhost:3000`)에서 첫 화면이 열린다. (빌드본으로 확인: `/` → `/login` 이동, `/login` 200, `/api/entries` 401)
+- [x] `npm run build`와 `npm run lint`가 오류 없이 끝난다.
+- [x] `npm run db:migrate` 실행 후 `diary.entries` 표가 있다. (`information_schema.tables`에서 `table_schema = 'diary'` 조회) (`diary.entries`, `diary.schema_migrations` 생성)
+- [x] **다른 스키마 보호 점검**: 마이그레이션 전후로 `diary` 밖 스키마의 표 목록과 개수가 똑같다. (`db:snapshot -- --compare before-001` 통과)
+- [x] `.env.example`에 변수 이름 5개가 있고, 값은 비어 있다. `git status`에 `.env`가 나타나지 않는다.
+- [x] `docs/API.md`의 응답 형식과 `src/lib/ai/types.ts`가 서로 맞는다.
+- [x] 2단계 파일 담당 구역이 정해져 있다.
 
 ---
 
@@ -194,6 +194,7 @@
 ### 2-C. frontend-developer — 화면
 
 - `docs/API.md` 형식의 **임시 데이터(mock)** 로 화면을 먼저 만든다.
+  - 화면 전용 타입, mock 데이터, `/api/entries` 호출 함수는 `src/lib/client/**`에 둔다. (frontend-developer 담당 구역)
 - 화면 구성
   - 로그인 화면: 앱 소개 한 줄과 "구글로 시작하기" 버튼
   - 오늘의 일기: 한 줄 입력창, 글자 수 표시, 저장 버튼 → 분석 중 표시 → 감정과 공감 메시지 카드
