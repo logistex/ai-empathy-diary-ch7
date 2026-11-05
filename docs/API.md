@@ -233,6 +233,8 @@ AI가 실패해도 저장하고 `201`을 돌려준다. 저장 자체가 실패�
 
 `details[].code` 값: `empty`(빈 값·공백뿐), `too_long`(200자 초과), `invalid_type`(형식 오류), `invalid_cursor`, `invalid_limit`.
 
+`invalid_type`에는 NUL 문자(`\u0000`)가 들어 있는 내용과 64KB를 넘는 요청 본문도 포함된다. (2단계 구현에서 정함, 약속 변경 아님)
+
 ### 5.2 `GET /api/entries` — 내 일기 목록
 
 **요청**

@@ -14,7 +14,7 @@
 |---|---|---|---|
 | 0 | PRD 작성 | product-manager | 완료 (2026-11-05 승인) |
 | 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 완료 (2026-11-05) |
-| 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 대기 |
+| 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 완료 (2026-11-05) |
 | 3 | 통합 | backend-developer → frontend-developer | 대기 |
 | 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 대기 |
 | 5 | 배포 | backend-developer, qa-engineer (+ 사용자 직접 작업) | 대기 |
@@ -210,12 +210,12 @@
 
 **완료 확인**
 
-- [ ] `npm run test`가 모두 통과한다. (백엔드 테스트, AI 모델 전환·위기 감지 테스트)
-- [ ] `npm run build`와 `npm run lint`가 오류 없이 끝난다.
-- [ ] 각 에이전트가 자기 담당 구역 밖의 파일을 고치지 않았다. (`git status`와 `git diff --stat`으로 확인)
-- [ ] AI 모듈을 실제 API로 한 번 불러 본 결과(성공한 모델 이름, 받은 JSON 형식)를 보고했다. 일기 원문이나 키는 로그에 남기지 않는다.
-- [ ] 화면을 모바일 폭(375px)과 데스크톱 폭에서 열어 보고, mock 데이터로 일기 쓰기, 결과 카드, 위기 안내 상자, 지난 기록, 빈 상태가 모두 보인다.
-- [ ] 약속 변경 요청과 추가 의존성 요청을 정리했다. (없으면 "없음")
+- [x] `npm run test`가 모두 통과한다. (백엔드 테스트, AI 모델 전환·위기 감지 테스트) (전체 310개 통과, 실제 DB·실제 API 확인용 7개는 기본 건너뜀)
+- [x] `npm run build`와 `npm run lint`가 오류 없이 끝난다.
+- [x] 각 에이전트가 자기 담당 구역 밖의 파일을 고치지 않았다. (`git status`와 `git diff --stat`으로 확인) (구역 밖 변경 0건, package.json·설정·docs 변경 없음)
+- [x] AI 모듈을 실제 API로 한 번 불러 본 결과(성공한 모델 이름, 받은 JSON 형식)를 보고했다. 일기 원문이나 키는 로그에 남기지 않는다. (두 모델 모두 OpenRouter에 있음, 시험 문장 3개 모두 1순위 성공)
+- [x] 화면을 모바일 폭(375px)과 데스크톱 폭에서 열어 보고, mock 데이터로 일기 쓰기, 결과 카드, 위기 안내 상자, 지난 기록, 빈 상태가 모두 보인다. (frontend-developer가 mock 미리보기로 확인)
+- [x] 약속 변경 요청과 추가 의존성 요청을 정리했다. (없으면 "없음") (세 에이전트 모두 없음)
 
 ---
 
@@ -229,7 +229,9 @@
 2. **backend-developer**: `POST /api/entries`에서 임시 `analyzeDiary` 대신 실제 AI 모듈을 부르게 연결한다.
    - 일기는 AI가 실패해도 저장한다. 분석 결과는 비워 두거나 "분석 실패"로 표시한다.
    - 위기 여부(`is_crisis`)를 함께 저장하고 응답에 담는다.
-3. **frontend-developer**: mock 데이터를 걷어 내고 실제 API에 연결한다. 로그인·로그아웃 흐름과 `401` 응답 시 로그인 화면 이동을 연결한다.
+   - `analyzeDiary`가 예외를 던지면 지금은 위기 여부가 `false`가 된다. 그때도 `src/lib/ai/crisis.ts`의 `detectCrisis`로 키워드 검사를 해서 위기 안내를 지킨다. (2단계 backend 보고)
+   - 시험 중 쌓인 행이 있으면 실제 AI 연결 전에 지운다.
+3. **frontend-developer**: `src/lib/client/config.ts`의 `USE_MOCK_API`를 `false`로 바꿔 실제 API에 연결한다. 로그인·로그아웃 흐름과 `401` 응답 시 로그인 화면 이동을 연결한다.
 4. 로컬에서 처음부터 끝까지 직접 써 본다. 구글 로그인은 **사용자가 직접** 한다. (에이전트는 비밀번호를 입력하지 않는다.)
 5. 로컬에 커밋한다.
 
