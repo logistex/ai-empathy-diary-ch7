@@ -24,3 +24,25 @@ export const MODEL_CHAIN = [PRIMARY_MODEL, FALLBACK_MODEL] as const;
 
 /** 모델 하나당 기다리는 시간(밀리초). 20초. 최악의 경우 20초 x 2 = 40초 (PRD S1의 45초 이내 기준). */
 export const REQUEST_TIMEOUT_MS = 20_000;
+
+/**
+ * 모델이 만들 수 있는 최대 토큰 수.
+ * 추론(reasoning) 모델은 생각하는 데 쓴 토큰도 여기에 들어가서, 너무 작으면 본문이 비어 돌아온다.
+ * 공감 메시지 자체는 짧으므로(약 200자), 추론분을 감안해 넉넉히 잡는다.
+ */
+export const MAX_OUTPUT_TOKENS = 2_000;
+
+/** 말투가 안정되도록 낮은 편으로 둔다. */
+export const TEMPERATURE = 0.5;
+
+/**
+ * 모델별 요청 옵션.
+ * 2026-11-05 기준 OpenRouter 공개 모델 목록(/api/v1/models)의 supported_parameters를 따랐다.
+ *  - 1순위(ultra): response_format, structured_outputs를 지원 목록에 올려 두지 않았다. 프롬프트로 JSON을 요구한다.
+ *  - 2순위(super-vl): response_format, structured_outputs 지원. JSON 객체 모드를 켠다.
+ * 어느 쪽이든 응답은 schema.ts로 다시 검증하므로, 이 옵션은 "JSON이 나올 확률을 높이는 보조 수단"이다.
+ */
+export const MODEL_OPTIONS: Record<string, { jsonMode: boolean }> = {
+  [PRIMARY_MODEL]: { jsonMode: false },
+  [FALLBACK_MODEL]: { jsonMode: true },
+};

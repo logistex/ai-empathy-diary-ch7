@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { describe, expect, expectTypeOf, it } from "vitest";
 
-import { analyzeDiary } from "./index";
 import { FALLBACK_MODEL, MODEL_CHAIN, PRIMARY_MODEL, REQUEST_TIMEOUT_MS } from "./config";
 import {
   EMOTIONS,
@@ -58,18 +57,5 @@ describe("모델 설정", () => {
     expect(FALLBACK_MODEL).toBe("nvidia/nemotron-3.5-super-vl:free");
     expect([...MODEL_CHAIN]).toEqual([PRIMARY_MODEL, FALLBACK_MODEL]);
     expect(REQUEST_TIMEOUT_MS).toBe(20_000);
-  });
-});
-
-describe("analyzeDiary 임시 값(stub)", () => {
-  it("타입을 만족하는 성공 결과를 돌려주고, 값이 DB 제약 안에 있다", async () => {
-    const result = await analyzeDiary("오늘은 평범한 하루였다.");
-    expect(result.status).toBe("success");
-    if (result.status !== "success") return;
-    expect(EMOTIONS).toContain(result.emotion);
-    expect(EMOTION_SCORES).toContain(result.emotionScore);
-    expect(result.empathyMessage.length).toBeGreaterThan(0);
-    expect(result.modelUsed.length).toBeGreaterThan(0);
-    expect(typeof result.isCrisis).toBe("boolean");
   });
 });
