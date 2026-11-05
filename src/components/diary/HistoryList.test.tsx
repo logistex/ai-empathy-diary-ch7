@@ -13,6 +13,8 @@ import {
 import { DEFAULT_COMFORT_MESSAGE } from "./messages";
 import { HistoryList } from "./HistoryList";
 
+// 화면 테스트는 실제 API(USE_MOCK_API=false)가 아니라 mock 일기 API 로 돈다.
+vi.mock("@/lib/client/entries-client", () => import("@/lib/client/mock-entries-client"));
 vi.mock("@/lib/client/login-redirect", () => ({ redirectToLogin: vi.fn(), LOGIN_PATH: "/login" }));
 
 type User = ReturnType<typeof userEvent.setup>;

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { USE_MOCK_API } from "./config";
 import { createEntriesClient } from "./entries-client";
 import { ApiClientError } from "./errors";
 import { redirectToLogin } from "./login-redirect";
@@ -59,5 +60,11 @@ describe("createEntriesClient — 401 이면 로그인 화면으로 보낸다", 
 
     await expect(client.listEntries({ limit: 5 })).resolves.toBe(page);
     expect(redirectToLogin).not.toHaveBeenCalled();
+  });
+});
+
+describe("운영 설정", () => {
+  it("운영 화면은 실제 API 를 쓴다 (USE_MOCK_API 는 false)", () => {
+    expect(USE_MOCK_API).toBe(false);
   });
 });

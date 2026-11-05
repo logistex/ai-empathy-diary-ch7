@@ -18,7 +18,12 @@ import {
 
 import styles from "./DiaryForm.module.css";
 import { EntryResult } from "./EntryResult";
-import { FREE_MODEL_NOTICE } from "./messages";
+import {
+  ANALYZING_MESSAGE,
+  ANALYZING_SLOW_MESSAGE,
+  FREE_MODEL_NOTICE,
+  SLOW_ANALYSIS_AFTER_MS,
+} from "./messages";
 
 /**
  * 오늘의 일기 쓰기: 한 줄 입력 → 저장 → 분석 중 → 결과(감정·공감 메시지, 위기면 상담 연락처).
@@ -39,11 +44,33 @@ export function DiaryForm() {
   const [showEmpty, setShowEmpty] = useState(false);
   // 서버/네트워크 오류. 쓴 내용은 지우지 않는다.
   const [saveError, setSaveError] = useState<string | null>(null);
+  // 분석이 오래 걸릴 때 안심 문구로 바꾸는 표시
+  const [slow, setSlow] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   // 상태(saving)는 다음 화면 그리기 때 바뀌므로, 아주 빠른 두 번 클릭을 막으려고 ref 도 함께 쓴다.
   const submittingRef = useRef(false);
+  // 기다리는 동안 다른 쪽으로 이동하면 이 화면은 사라진다. 사라진 화면의 상태는 바꾸지 않는다.
+  // (요청은 계속 진행되어 일기는 서버에 저장된다. 지난 기록에서 볼 수 있다.)
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // 저장 중 15초가 지나도록 끝나지 않으면 안심 문구로 바꾼다. 끝나거나 화면을 떠나면 타이머를 정리한다.
+  useEffect(() => {
+    if (!saving) return;
+    const timer = setTimeout(() => setSlow(true), SLOW_ANALYSIS_AFTER_MS);
+    return () => {
+      clearTimeout(timer);
+      setSlow(false);
+    };
+  }, [saving]);
 
   // 서버와 같은 기준: 앞뒤 공백을 지운 뒤 글자 수(Array.from)로 센다.
   const checked = validateDiaryContent(text);
@@ -73,10 +100,12 @@ export function DiaryForm() {
 
     try {
       const entry = await createEntry(checked.content);
+      if (!mountedRef.current) return;
       setResult(entry);
       setText("");
       setShowEmpty(false);
     } catch (error) {
+      if (!mountedRef.current) return;
       // 401 이면 entries-client 가 로그인 화면으로 보낸다. 그 사이 보일 안내만 둔다.
       setSaveError(
         isApiClientError(error) && error.status === 401
@@ -85,7 +114,7 @@ export function DiaryForm() {
       );
     } finally {
       submittingRef.current = false;
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   }
 
@@ -158,7 +187,7 @@ export function DiaryForm() {
         {saving ? (
           <p className={styles.analyzing}>
             <Spinner />
-            <span>분석 중이에요. 마음을 천천히 읽고 있어요.</span>
+            <span>{slow ? ANALYZING_SLOW_MESSAGE : ANALYZING_MESSAGE}</span>
           </p>
         ) : null}
         {saveError ? (

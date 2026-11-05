@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,8 +7,16 @@ import { mockEntriesApi, resetMockApi } from "@/lib/client/mock-api";
 import type { Entry } from "@/lib/client/types";
 
 import { DiaryForm } from "./DiaryForm";
-import { DEFAULT_COMFORT_MESSAGE, FREE_MODEL_NOTICE } from "./messages";
+import {
+  ANALYZING_MESSAGE,
+  ANALYZING_SLOW_MESSAGE,
+  DEFAULT_COMFORT_MESSAGE,
+  FREE_MODEL_NOTICE,
+  SLOW_ANALYSIS_AFTER_MS,
+} from "./messages";
 
+// 화면 테스트는 실제 API(USE_MOCK_API=false)가 아니라 mock 일기 API 로 돈다.
+vi.mock("@/lib/client/entries-client", () => import("@/lib/client/mock-entries-client"));
 // 401 일 때의 이동은 이 테스트에서 확인하지 않는다. (entries-client.test.ts 에서 확인)
 vi.mock("@/lib/client/login-redirect", () => ({ redirectToLogin: vi.fn(), LOGIN_PATH: "/login" }));
 
@@ -147,7 +155,7 @@ describe("저장 중", () => {
 
     const busy = screen.getByRole("button", { name: "분석 중…" });
     expect(busy.getAttribute("aria-disabled")).toBe("true");
-    expect(screen.getByText("분석 중이에요. 마음을 천천히 읽고 있어요.")).toBeTruthy();
+    expect(screen.getByText(ANALYZING_MESSAGE)).toBeTruthy();
 
     // 저장 중에 다시 눌러도, Enter 로 제출해도 한 번만 호출된다.
     await user.click(busy);
@@ -167,10 +175,82 @@ describe("저장 중", () => {
     });
 
     await screen.findByLabelText("오늘의 일기 결과");
-    expect(screen.queryByText("분석 중이에요. 마음을 천천히 읽고 있어요.")).toBeNull();
+    expect(screen.queryByText(ANALYZING_MESSAGE)).toBeNull();
     expect(screen.getByRole("button", { name: "저장하기" }).getAttribute("aria-disabled")).toBe(
       "false",
     );
+  });
+});
+
+describe("오래 걸리는 저장", () => {
+  const ENTRY: Entry = {
+    id: "x",
+    content: "오늘은 비가 왔다.",
+    createdAt: "2026-11-05T05:00:00.000Z",
+    analysisStatus: "success",
+    emotion: "평온",
+    emotionScore: 3,
+    empathyMessage: "차분한 하루였군요.",
+    isCrisis: false,
+    modelUsed: "m",
+  };
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("15초가 지나도록 끝나지 않으면 안심 문구로 바뀌고, 끝나면 결과가 나온다", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    let finish!: (entry: Entry) => void;
+    vi.spyOn(mockEntriesApi, "createEntry").mockImplementation(
+      () => new Promise<Entry>((resolve) => (finish = resolve)),
+    );
+    render(<DiaryForm />);
+
+    fireEvent.change(textarea(), { target: { value: "오늘은 비가 왔다." } });
+    await user.click(saveButton());
+
+    expect(screen.getByText(ANALYZING_MESSAGE)).toBeTruthy();
+    expect(screen.queryByText(ANALYZING_SLOW_MESSAGE)).toBeNull();
+
+    await act(async () => {
+      vi.advanceTimersByTime(SLOW_ANALYSIS_AFTER_MS - 1000);
+    });
+    expect(screen.getByText(ANALYZING_MESSAGE)).toBeTruthy();
+
+    await act(async () => {
+      vi.advanceTimersByTime(1500);
+    });
+    expect(screen.getByText(ANALYZING_SLOW_MESSAGE)).toBeTruthy();
+    expect(screen.queryByText(ANALYZING_MESSAGE)).toBeNull();
+    // 오래 걸려도 오류로 바뀌지 않는다.
+    expect(screen.queryByRole("alert")).toBeNull();
+
+    await act(async () => {
+      finish(ENTRY);
+    });
+    await screen.findByLabelText("오늘의 일기 결과");
+    expect(screen.queryByText(ANALYZING_SLOW_MESSAGE)).toBeNull();
+  });
+
+  it("기다리는 동안 다른 쪽으로 이동(화면이 사라짐)해도 오류가 나지 않는다", async () => {
+    const user = userEvent.setup();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    let finish!: (entry: Entry) => void;
+    vi.spyOn(mockEntriesApi, "createEntry").mockImplementation(
+      () => new Promise<Entry>((resolve) => (finish = resolve)),
+    );
+    const { unmount } = render(<DiaryForm />);
+
+    fireEvent.change(textarea(), { target: { value: "오늘은 비가 왔다." } });
+    await user.click(saveButton());
+    unmount();
+
+    await act(async () => {
+      finish(ENTRY);
+    });
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 });
 

@@ -6,38 +6,38 @@
  *
  * 공통 처리: 로그인이 필요하다는 응답(401)을 받으면 /login 으로 보낸 뒤, 호출한 쪽에도 오류를 그대로 던진다.
  * (호출한 쪽은 401 일 때 따로 오류 문구를 크게 띄우지 않아도 된다.)
+ *
+ * 시간 제한: 저장(POST)은 AI 분석 때문에 10초 안팎, 길면 40초까지 걸린다. (서버 maxDuration 60초)
+ * 그래서 여기서도 http-api.ts 에서도 fetch 에 시간 제한(AbortSignal.timeout 등)을 걸지 않는다.
  */
 import { USE_MOCK_API } from "./config";
-import { isApiClientError } from "./errors";
+import { createEntriesClient } from "./create-client";
 import { httpEntriesApi } from "./http-api";
-import { redirectToLogin } from "./login-redirect";
-import { mockEntriesApi } from "./mock-api";
 import type { EntriesApi } from "./types";
 
-/** 어떤 구현이든 401 이 오면 로그인 화면으로 보내도록 감싼다. */
-export function createEntriesClient(api: EntriesApi): EntriesApi {
-  async function guarded<T>(run: () => Promise<T>): Promise<T> {
-    try {
-      return await run();
-    } catch (error) {
-      if (isApiClientError(error) && error.status === 401) {
-        redirectToLogin();
-      }
-      throw error;
-    }
-  }
+export { createEntriesClient };
 
-  return {
-    createEntry: (content) => guarded(() => api.createEntry(content)),
-    listEntries: (options) => guarded(() => api.listEntries(options)),
-    getEntry: (id) => guarded(() => api.getEntry(id)),
-    deleteEntry: (id) => guarded(() => api.deleteEntry(id)),
-  };
+/**
+ * 쓸 구현을 고른다.
+ *
+ * mock 은 개발 중 USE_MOCK_API 를 true 로 바꿨을 때만 쓰며, 처음 부를 때 동적으로 불러온다.
+ * `process.env.NODE_ENV !== "production"` 조건은 빌드 때 false 로 굳어지므로, 번들러가 이 블록을 통째로 지워
+ * mock-api.ts(샘플 일기 포함)가 운영 번들에 들어가지 않는다. (USE_MOCK_API 값만으로는 지워지지 않는다. 다른 파일의 값이라서.)
+ */
+function selectApi(): EntriesApi {
+  if (process.env.NODE_ENV !== "production" && USE_MOCK_API) {
+    const load = () => import("./mock-api").then((module) => module.mockEntriesApi);
+    return {
+      createEntry: async (content) => (await load()).createEntry(content),
+      listEntries: async (options) => (await load()).listEntries(options),
+      getEntry: async (id) => (await load()).getEntry(id),
+      deleteEntry: async (id) => (await load()).deleteEntry(id),
+    };
+  }
+  return httpEntriesApi;
 }
 
-export const entriesClient: EntriesApi = createEntriesClient(
-  USE_MOCK_API ? mockEntriesApi : httpEntriesApi,
-);
+export const entriesClient: EntriesApi = createEntriesClient(selectApi());
 
 export const createEntry = entriesClient.createEntry;
 export const listEntries = entriesClient.listEntries;

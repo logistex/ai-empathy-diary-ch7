@@ -46,6 +46,17 @@ describe("createHttpEntriesApi (docs/API.md 형식)", () => {
     expect(init.cache).toBe("no-store");
   });
 
+  it("저장 요청에 시간 제한(signal)을 걸지 않는다 (AI 분석으로 최대 약 40초 걸린다)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ entry: ENTRY }, 201));
+    const api = createHttpEntriesApi(fetchMock);
+
+    await api.createEntry("오늘 친구와");
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init.signal).toBeUndefined();
+    expect("signal" in init).toBe(false);
+  });
+
   it("listEntries: limit·cursor 를 쿼리로 붙이고, 첫 페이지는 쿼리 없이 부른다", async () => {
     // Response 본문은 한 번만 읽을 수 있으므로 호출할 때마다 새로 만든다.
     const fetchMock = vi

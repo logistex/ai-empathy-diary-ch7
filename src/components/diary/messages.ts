@@ -17,3 +17,15 @@ export const NO_ANALYSIS_LABEL = "분석 안 됨";
 /** 일기 지우기 확인 문구 (PRD F7: "이 일기를 지울까요? 지우면 되돌릴 수 없어요.") */
 export const DELETE_CONFIRM_TITLE = "이 일기를 지울까요?";
 export const DELETE_CONFIRM_DESCRIPTION = "지우면 되돌릴 수 없어요.";
+
+/** 저장·분석을 기다리는 동안 보여 주는 문구 */
+export const ANALYZING_MESSAGE = "분석 중이에요. 마음을 천천히 읽고 있어요.";
+
+/** 분석이 오래 걸릴 때(SLOW_ANALYSIS_AFTER_MS 가 지나면) 위 문구 대신 보여 주는 안심 문구 */
+export const ANALYZING_SLOW_MESSAGE = "조금 더 걸리고 있어요. 잠시만 기다려 주세요.";
+
+/**
+ * 이 시간(밀리초)이 지나도록 응답이 없으면 안심 문구로 바꾼다.
+ * 서버는 보통 10초 안팎, 두 모델이 모두 느리면 최대 약 40초 걸린다. (fetch 에는 시간 제한을 걸지 않는다.)
+ */
+export const SLOW_ANALYSIS_AFTER_MS = 15_000;
