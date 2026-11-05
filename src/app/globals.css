@@ -1,0 +1,238 @@
+/*
+ * 전역 스타일 — 종이 일기장 느낌의 디자인 값(CSS 변수)과 기본 규칙.
+ *
+ * 규칙
+ * - 색·글꼴·여백 같은 값은 여기 :root 변수로만 정하고, CSS Modules에서는 var(--...)로 가져다 쓴다.
+ * - 다크 모드는 이번 범위 밖이라 만들지 않는다. (PRD 5.1)
+ * - 모든 글자/배경 조합은 WCAG AA 본문 기준(4.5:1)을 넘긴다. 대비 값은 각 변수 옆 주석에 적었다.
+ *   (대비 = 밝기 비율. 흰색 #FFF 대비는 따로 적은 곳만 흰색 기준)
+ */
+
+:root {
+  /* ---------- 색: 바탕(크림·베이지) ---------- */
+  --color-bg: #fbf5e9; /* 페이지 바탕: 크림 */
+  --color-surface: #fffdf8; /* 카드·입력창: 종이 */
+  --color-surface-sunken: #f3e9d6; /* 머리글·구분 영역: 베이지 */
+
+  /* ---------- 색: 글자 ---------- */
+  --color-text: #3a2e25; /* 본문. bg 12.11 / surface 12.93 / sunken 10.92 */
+  --color-text-muted: #675646; /* 보조 글자. bg 6.45 / surface 6.89 / sunken 5.82 */
+  --color-text-on-accent: #ffffff; /* 강조색 버튼 위 글자. accent 6.21 / accent-hover 8.37 */
+
+  /* ---------- 색: 강조(테라코타) ---------- */
+  --color-accent: #9a4a25; /* 주 버튼 바탕 */
+  --color-accent-hover: #7e3a1b; /* 주 버튼 마우스 올림 */
+  --color-accent-text: #8a4120; /* 강조색 글자(링크 등). bg 6.77 / surface 7.23 / accent-soft 5.89 */
+  --color-accent-soft: #f6e3d2; /* 강조 배경(현재 메뉴 등). text 위 10.54 */
+
+  /* ---------- 색: 테두리 ---------- */
+  --color-border: #d8c7aa; /* 장식용 구분선(정보를 전달하지 않는 선만). bg 1.53 */
+  --color-border-strong: #8a7255; /* 입력창·버튼 테두리(UI 경계 3:1 기준). bg 4.19 / surface 4.47 */
+
+  /* ---------- 색: 성공 / 오류 (오류도 자극적인 빨강 대신 벽돌색) ---------- */
+  --color-success-bg: #e6f0de;
+  --color-success-text: #2d5a27; /* success-bg 위 6.87 */
+  --color-error-bg: #fbe9e1;
+  --color-error-text: #8a2e1c; /* error-bg 위 7.17 / surface 위 8.30 */
+  --color-error-border: #b5503a; /* error-bg 위 4.28 (장식 테두리, 글자는 error-text) */
+
+  /* ---------- 색: 위기 안내 상자 (차분한 청록. 빨강을 쓰지 않는다) ---------- */
+  --color-crisis-bg: #e3eff1;
+  --color-crisis-border: #2b6c77; /* crisis-bg 위 5.09 / bg 위 5.50 */
+  --color-crisis-text: #1c3a41; /* crisis-bg 위 10.33 */
+  --color-crisis-action: #215b66; /* 전화 걸기 버튼 바탕. 흰 글자 7.63 / crisis-bg 위 6.50 */
+
+  /* ---------- 색: 포커스 ---------- */
+  --color-focus: #1d4f91; /* bg 7.50 / surface 8.01 / accent-soft 6.53 (UI 3:1 기준 충족) */
+
+  /* ---------- 글꼴 ----------
+     next/font로 불러온 변수(--font-body, --font-display)는 layout.tsx에서 <html>에 붙는다.
+     뒤쪽은 불러오기 전/실패 시 쓸 한국어 시스템 글꼴이다. */
+  --font-sans:
+    var(--font-body), "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", "Noto Sans KR", system-ui,
+    sans-serif;
+  --font-serif:
+    var(--font-display), "Nanum Myeongjo", "Batang", "바탕", "AppleMyungjo", serif;
+
+  /* ---------- 글자 크기 단계 (rem) ---------- */
+  --text-xs: 0.8125rem; /* 13px: 글자 수 표시 같은 부가 정보 */
+  --text-sm: 0.9375rem; /* 15px: 안내 문구, 작은 버튼 */
+  --text-md: 1.0625rem; /* 17px: 본문 (한글은 조금 크게) */
+  --text-lg: 1.1875rem; /* 19px: 강조 본문 */
+  --text-xl: 1.5rem; /* 24px: 소제목 */
+  --text-2xl: 1.875rem; /* 30px: 쪽 제목 */
+  --text-3xl: 2.25rem; /* 36px: 로그인 큰 제목 */
+
+  --leading-tight: 1.35;
+  --leading-body: 1.75; /* 한글 본문 줄 간격 */
+
+  /* ---------- 여백 단계 (4px 기준) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* ---------- 둥근 모서리 ---------- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* ---------- 그림자 (따뜻한 갈색 기운) ---------- */
+  --shadow-sm: 0 1px 2px rgb(90 60 30 / 10%);
+  --shadow-md: 0 4px 14px rgb(90 60 30 / 12%);
+  --shadow-lg: 0 10px 30px rgb(90 60 30 / 14%);
+
+  /* ---------- 배치 ---------- */
+  --content-width: 42rem; /* 본문 최대 너비 */
+  --page-gutter: var(--space-4); /* 모바일 좌우 여백 */
+  --touch-target: 2.75rem; /* 누르는 곳 최소 크기 44px */
+
+  /* ---------- 움직임 ---------- */
+  --transition-fast: 150ms ease;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --page-gutter: var(--space-6);
+  }
+}
+
+/* ---------- 기본 규칙 ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  word-break: keep-all; /* 한글을 단어 단위로 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 글자(주소 등)가 화면을 넘지 않게 */
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+}
+
+h1 {
+  font-size: var(--text-2xl);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+h3 {
+  font-size: var(--text-lg);
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-accent-text);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* 키보드로 이동할 때 보이는 포커스 표시. 마우스 클릭에는 나타나지 않는다. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background-color: var(--color-accent-soft);
+  color: var(--color-text);
+}
+
+/* 화면에는 보이지 않고 스크린 리더만 읽는 글자 */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 움직임을 줄여 달라는 설정을 존중한다. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 건너뛰기 링크: 평소엔 화면 밖에 있다가 키보드 포커스를 받으면 왼쪽 위에 나타난다. */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 100;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-text);
+  color: var(--color-bg); /* 12.11 */
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  color: var(--color-bg);
+}

@@ -1,0 +1,34 @@
+.main {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-6) var(--page-gutter);
+}
+
+.main:focus {
+  outline: none;
+}
+
+.card {
+  display: grid;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 26rem;
+  text-align: center;
+}
+
+.eyebrow {
+  color: var(--color-accent-text);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.title {
+  font-size: var(--text-3xl);
+}
+
+.intro {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}

@@ -1,0 +1,10 @@
+.main {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--page-gutter) var(--space-8);
+}
+
+/* 건너뛰기 링크로 옮겨온 포커스에는 큰 테두리를 그리지 않는다 */
+.main:focus {
+  outline: none;
+}

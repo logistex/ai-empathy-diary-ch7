@@ -1,0 +1,77 @@
+.header {
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface-sunken);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap; /* 375px에서는 앱 이름 아래 줄로 메뉴가 내려간다 */
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: var(--space-3) var(--page-gutter);
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-accent-text);
+}
+
+.nav {
+  max-width: 100%;
+}
+
+.navList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 링크와 로그아웃 버튼이 같은 모양이 되도록 함께 쓰는 스타일 */
+.navItem {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.navItem:hover {
+  background-color: var(--color-accent-soft);
+  color: var(--color-text);
+}
+
+/* 현재 쪽: 색만으로 알리지 않고 굵기와 밑줄도 쓴다 */
+.navItem[data-current="true"] {
+  background-color: var(--color-accent-soft);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* 로그아웃: 보조 글자색(sunken 위 5.82). 호버 때는 .navItem:hover 규칙이 text색으로 바꾼다 */
+.signOut {
+  color: var(--color-text-muted);
+}
