@@ -16,7 +16,7 @@
 | 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 완료 (2026-11-05) |
 | 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 완료 (2026-11-05) |
 | 3 | 통합 | backend-developer → frontend-developer | 완료 (2026-11-05) |
-| 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 대기 |
+| 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 진행 중 (검사·보고 완료, 수정 전) |
 | 5 | 배포 | backend-developer, qa-engineer (+ 사용자 직접 작업) | 대기 |
 
 상태 표시는 `대기 / 진행 중 / 완료`로 쓰고, 단계가 끝날 때마다 product-manager가 이 표를 고친다.
@@ -285,6 +285,11 @@
 8. `npm run build`, `lint`, `test` 실행 결과
 
 **산출물**: `docs/QA-REPORT.md` (심각도 / 위치 / 문제 / 재현 방법 / 고칠 방법 제안)
+
+- 2026-11-05 1차 검사: `qa-engineer`(haiku 모델)가 검사하고 보고만 했다. 코드는 고치지 않았다. 보고서는 사용자 요청에 따라 `docs/qa/haiku.md`에 저장했다. (높음 1, 중간 2, 낮음 9)
+- 2026-11-05 2차 검사: `qa-engineer`(opus 모델)가 같은 조건으로 다시 검사했다. 보고서는 `docs/qa/opus.md`, 두 모델 비교는 `docs/qa/compare.md`. (높음 1, 중간 3, 낮음 9)
+- 2026-11-05 높음 2건 수정: `ai-integration-specialist`가 `src/lib/ai/crisis.ts`, `crisis.test.ts`를 고쳤다("죽을 것 같다" 계열 추가, 긴 표현을 자모 단위로 비교). `qa-engineer`(opus) 재검사 결과 두 건 모두 해결됨. 다만 자모 비교 때문에 새 오탐(중간 1: "목 맨날", "세상을 떠났다" 등)과 새 미탐(낮음 1: "사라 버리다"), 테스트 보강(낮음 1)이 나왔다. 보고서는 `docs/qa/recheck-high.md`.
+- 2026-11-05 1차 재검사 문제 수정: 위기 규칙을 두 목록으로 나눴다(음절 비교 `CRISIS_PHRASES`, 활용 어간만 자모 비교 `CRISIS_STEM_PHRASES`). `qa-engineer`(opus) 2차 재검사 결과 원래 높음 2건과 1차 재검사의 중간·낮음 1건씩 해결됨, 테스트 보강은 일부 해결. HEAD 대비 새 미탐은 0건(무작위 입력 20만 개 확인). 새로 나온 문제는 중간 1("고생을 끝냈다"가 "생을끝내"에 걸림), 낮음 3. 보고서는 `docs/qa/recheck-high-2.md`.
 
 **완료 확인**
 
