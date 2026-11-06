@@ -16,8 +16,8 @@
 | 1 | 프로젝트 뼈대 | backend-developer → ai-integration-specialist, frontend-developer | 완료 (2026-11-05) |
 | 2 | 백엔드 · AI · 화면 동시 개발 | backend-developer ∥ ai-integration-specialist ∥ frontend-developer | 완료 (2026-11-05) |
 | 3 | 통합 | backend-developer → frontend-developer | 완료 (2026-11-05) |
-| 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 진행 중 (검사·보고 완료, 수정 전) |
-| 5 | 배포 | backend-developer, qa-engineer (+ 사용자 직접 작업) | 대기 |
+| 4 | QA | qa-engineer (수정은 담당 개발 에이전트) | 진행 중 (높음 2건 수정·재검사 완료, 남은 문제 중간 1·낮음 3) |
+| 5 | 배포 | backend-developer, qa-engineer (+ 사용자 직접 작업) | 완료 (2026-11-06, https://ai-empathy-diary-ch7.vercel.app) |
 
 상태 표시는 `대기 / 진행 중 / 완료`로 쓰고, 단계가 끝날 때마다 product-manager가 이 표를 고친다.
 
@@ -320,15 +320,17 @@
 
 **산출물**: GitHub 저장소 `ai-empathy-diary-ch7`, Vercel 배포 주소, `README.md`
 
+- 2026-11-06 배포 완료: 배포 주소는 <https://ai-empathy-diary-ch7.vercel.app>. 사용자가 Vercel 배포를 마치고, 배포 주소에서 구글 로그인과 일기 저장을 직접 확인했다. `README.md`(사용자·개발자 설명, 배포 주소)와 `CLAUDE.md`(개발 규칙과 주의할 점)는 메인 Claude가 썼다.
+
 **완료 확인**
 
-- [ ] GitHub 저장소에 코드가 올라가 있고, `.env`는 없다.
-- [ ] Vercel 빌드가 성공했다.
-- [ ] 배포 주소에서 구글 로그인 → 일기 쓰기 → 공감 메시지 → 지난 기록 보기가 동작한다. (사용자 확인)
-- [ ] 배포 주소에서 위기 표현 시험 문장을 쓰면 상담 연락처가 나온다.
-- [ ] 로그인하지 않고 `/api/entries`를 부르면 `401`이 나온다. (`qa-engineer`가 `curl`로 확인)
-- [ ] 배포 후 DB에서 `diary` 밖 스키마의 표 목록과 개수가 1단계 기록과 같다.
-- [ ] "진행 현황" 표의 모든 단계가 "완료"다.
+- [x] GitHub 저장소에 코드가 올라가 있고, `.env`는 없다. (`git ls-files`의 `.env*`는 `.env.example`뿐)
+- [x] Vercel 빌드가 성공했다. (배포 주소가 응답함)
+- [x] 배포 주소에서 구글 로그인 → 일기 쓰기 → 공감 메시지 → 지난 기록 보기가 동작한다. (사용자가 로그인과 일기 저장을 확인)
+- [ ] 배포 주소에서 위기 표현 시험 문장을 쓰면 상담 연락처가 나온다. (아직 확인 안 함)
+- [x] 로그인하지 않고 `/api/entries`를 부르면 `401`이 나온다. (메인 Claude가 `curl`로 확인: `/` → `/login` 307, `/login` 200, `/api/entries` 401)
+- [ ] 배포 후 DB에서 `diary` 밖 스키마의 표 목록과 개수가 1단계 기록과 같다. (아직 확인 안 함. `npm run db:snapshot -- --compare before-001`)
+- [ ] "진행 현황" 표의 모든 단계가 "완료"다. (4단계는 남은 QA 문제 때문에 "진행 중")
 
 ---
 
